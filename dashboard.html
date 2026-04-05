@@ -1,0 +1,1182 @@
+Dashboard · HTML
+Copy
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentBridge — Compliance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f7f8fa; --surface:#fff; --s2:#f2f4f7; --s3:#e8ecf2;
+  --border:#e2e6ed; --border2:#d0d6e0;
+  --text:#0f1420; --t2:#4a5568; --t3:#8896b0; --t4:#b8c4d4;
+  --teal:#00b894; --teal-l:#e6f9f5; --teal-b:rgba(0,184,148,0.15);
+  --red:#e53e3e; --red-l:#fff5f5; --red-b:rgba(229,62,62,0.12);
+  --amber:#d97706; --amber-l:#fffbeb; --amber-b:rgba(217,119,6,0.12);
+  --blue:#3b82f6; --blue-l:#eff6ff; --blue-b:rgba(59,130,246,0.12);
+  --purple:#7c3aed; --purple-l:#f5f3ff; --purple-b:rgba(124,58,237,0.1);
+  --mono:'Geist Mono',monospace; --sans:'Geist',sans-serif;
+  --radius:10px; --shadow:0 1px 3px rgba(0,0,0,0.06);
+  --shadow2:0 4px 16px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+ 
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:52px;display:flex;align-items:center;gap:24px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.nav-logo{font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{padding:6px 14px;font-size:12px;font-weight:500;color:var(--t3);border-radius:7px;cursor:pointer;transition:all .12s;border:none;background:none;font-family:var(--sans)}
+.nav-tab:hover{color:var(--text);background:var(--s2)}
+.nav-tab.active{color:var(--text);background:var(--s2)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.api-input-wrap{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:5px 10px}
+.api-label{font-size:10px;color:var(--t3);font-family:var(--mono)}
+.api-field{background:none;border:none;outline:none;font-family:var(--mono);font-size:11px;color:var(--text);width:160px}
+.fetch-btn{background:var(--text);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .15s;display:flex;align-items:center;gap:5px}
+.fetch-btn:hover{background:#1a2035}
+.fetch-btn:disabled{background:var(--s3);color:var(--t3);cursor:not-allowed}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+ 
+.page{max-width:1280px;margin:0 auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+.section-hdr{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.section-title{font-size:13px;font-weight:600;color:var(--text)}
+.section-sub{font-size:11px;color:var(--t3)}
+ 
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.stat-label{font-size:10px;color:var(--t3);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.stat-val{font-size:22px;font-weight:600;color:var(--text);font-family:var(--mono)}
+.stat-sub{font-size:10px;color:var(--t3);margin-top:3px}
+ 
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.card-title{font-size:12px;font-weight:600;color:var(--text)}
+.card-count{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.card-action{font-size:11px;color:var(--teal);cursor:pointer;font-weight:500}
+.card-action:hover{text-decoration:underline}
+ 
+.endpoint{display:inline-flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-family:var(--mono);font-size:10px;color:var(--t2)}
+.ep-method{font-weight:600;color:var(--teal)}
+.ep-post .ep-method{color:var(--blue)}
+ 
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--s2)}
+th{padding:9px 12px;font-size:10px;font-weight:600;color:var(--t3);text-align:left;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;font-size:12px;color:var(--t2);border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .1s}
+tbody tr:hover{background:var(--s2)}
+.mono{font-family:var(--mono)}
+.t3{color:var(--t3)}
+ 
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;font-family:var(--mono)}
+.b-high{background:var(--red-l);color:var(--red);border:1px solid var(--red-b)}
+.b-med{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b)}
+.b-low{background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-b)}
+.b-blue{background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-b)}
+.b-purple{background:var(--purple-l);color:var(--purple);border:1px solid var(--purple-b)}
+.action-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:var(--mono);background:var(--s2);color:var(--t2);border:1px solid var(--border)}
+ 
+.empty-box{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;gap:10px}
+.empty-icon{font-size:28px;opacity:.4}
+.empty-text{font-size:12px;color:var(--t3)}
+ 
+.tab-content{display:none}
+.tab-content.active{display:flex;flex-direction:column;gap:20px}
+ 
+/* Drawer */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.18);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:420px;background:var(--surface);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1}
+.drawer-title{font-size:13px;font-weight:600;color:var(--text)}
+.drawer-id{font-size:10px;color:var(--t3);font-family:var(--mono)}
+.drawer-close{background:none;border:none;color:var(--t3);cursor:pointer;font-size:18px;padding:4px;line-height:1}
+.drawer-body{padding:18px;display:flex;flex-direction:column;gap:16px;flex:1}
+.d-section-title{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.d-kv{display:flex;flex-direction:column;gap:6px}
+.d-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.dk{font-size:11px;color:var(--t3);flex-shrink:0}
+.dv{font-size:12px;color:var(--text);font-family:var(--mono);text-align:right;word-break:break-all}
+.d-json{font-family:var(--mono);font-size:11px;color:var(--t2);background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:10px;white-space:pre-wrap;word-break:break-all;max-height:160px;overflow-y:auto}
+.violations-list{display:flex;flex-direction:column;gap:5px}
+.viol-item{font-size:11px;padding:7px 10px;border-radius:6px;line-height:1.5}
+.vi-high{background:var(--red-l);color:var(--red);border:1px solid var(--red-b)}
+.vi-med{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b)}
+ 
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--text);color:#fff;padding:9px 18px;border-radius:8px;font-size:12px;font-weight:500;opacity:0;pointer-events:none;transition:all .2s;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+ 
+/* Intelligence tab specific */
+.intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.drift-stat{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.drift-stat:last-child{border-bottom:none}
+.drift-key{font-size:12px;color:var(--t2)}
+.drift-vals{display:flex;gap:16px}
+.drift-val{text-align:right}
+.drift-val .label{font-size:9px;color:var(--t3);text-transform:uppercase}
+.drift-val .num{font-size:13px;font-weight:600;font-family:var(--mono)}
+.finding-item{padding:10px 12px;border-radius:7px;font-size:12px;line-height:1.5;margin-bottom:6px}
+ 
+/* NL Query */
+.query-wrap{padding:16px}
+.query-input-row{display:flex;gap:8px;margin-bottom:12px}
+.query-input{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;transition:border-color .15s}
+.query-input:focus{border-color:var(--teal)}
+.query-btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:background .15s}
+.query-btn:hover{background:#00a381}
+.query-btn:disabled{background:var(--s3);color:var(--t3);cursor:not-allowed}
+.query-answer{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--text);line-height:1.7;min-height:80px;display:none}
+.query-answer.visible{display:block}
+.query-suggestions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.query-chip{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--t2);cursor:pointer;transition:all .12s}
+.query-chip:hover{border-color:var(--teal);color:var(--teal)}
+ 
+/* Structuring */
+.struct-clean{padding:16px;display:flex;align-items:center;gap:10px;color:var(--teal);font-size:12px}
+.struct-alert{padding:16px;display:flex;flex-direction:column;gap:10px}
+.struct-badge{display:inline-flex;align-items:center;gap:6px;background:var(--red-l);border:1px solid var(--red-b);color:var(--red);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;width:fit-content}
+.struct-desc{font-size:12px;color:var(--t2);line-height:1.6;padding:10px;background:var(--s2);border-radius:7px;border:1px solid var(--border)}
+.struct-ref{font-size:11px;color:var(--t3);font-family:var(--mono)}
+ 
+/* Rules engine */
+.an-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--border)}
+.an-row:last-child{border-bottom:none}
+.an-num{font-family:var(--mono);font-size:11px;color:var(--t4);flex-shrink:0;width:24px}
+.an-body{flex:1}
+.an-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.an-desc{font-size:11px;color:var(--t3)}
+.an-sev{flex-shrink:0}
+.rbi-list{padding:4px 0}
+.rbi-row{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border)}
+.rbi-row:last-child{border-bottom:none}
+.rbi-ico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.ri-pass{background:var(--teal-l);color:var(--teal)}
+.ri-fail{background:var(--red-l);color:var(--red)}
+.rbi-info{flex:1}
+.rbi-clause{font-size:12px;font-weight:500;color:var(--text)}
+.rbi-desc{font-size:11px;color:var(--t3);margin-top:1px}
+.rbi-status{font-size:10px;font-family:var(--mono);font-weight:600;flex-shrink:0}
+.rs-ok{color:var(--teal)}
+.rs-bad{color:var(--red)}
+ 
+/* Demo payload */
+.payload-box{font-family:var(--mono);font-size:11px;background:var(--s2);padding:12px 16px;color:var(--t2);line-height:1.8;border-bottom:1px solid var(--border)}
+.pj-key{color:var(--blue)}
+.pj-str{color:var(--teal)}
+.pj-num{color:var(--purple)}
+.send-payload-btn{margin:12px 16px;background:var(--blue);color:#fff;border:none;border-radius:7px;padding:8px 16px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:background .15s}
+.send-payload-btn:hover{background:#2563eb}
+ 
+/* Report */
+.report-meta{padding:16px;display:flex;flex-direction:column;gap:6px;border-bottom:1px solid var(--border)}
+.report-meta-row{display:flex;justify-content:space-between;font-size:12px}
+.report-meta-key{color:var(--t3)}
+.report-meta-val{color:var(--text);font-family:var(--mono);font-weight:500}
+#reportContent{min-height:120px}
+</style>
+</head>
+<body>
+ 
+<nav>
+  <div class="nav-logo"><div class="nav-logo-dot"></div>AgentBridge</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('logs')">Logs</button>
+    <button class="nav-tab" onclick="switchTab('incidents')">Incidents</button>
+    <button class="nav-tab" onclick="switchTab('report')">RBI Report</button>
+    <button class="nav-tab" onclick="switchTab('intelligence')">Intelligence</button>
+    <button class="nav-tab" onclick="switchTab('rules')">Rules Engine</button>
+    <button class="nav-tab" onclick="switchTab('manual')">⌨ Manual Log</button>
+  </div>
+  <div class="nav-right">
+    <div class="api-input-wrap">
+      <span class="api-label">api_key</span>
+      <input class="api-field" id="apiKeyInput" placeholder="enter your api key" value="demo_key_001">
+    </div>
+    <div class="api-input-wrap" style="width:220px">
+      <span class="api-label">backend</span>
+      <input class="api-field" id="backendInput" placeholder="auto (same origin)" style="width:180px" value="" autocomplete="off">
+    </div>
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchAll()">
+      <span id="fetchIcon">↓</span> Fetch Data
+    </button>
+    <div class="live-badge"><div class="live-dot"></div><span id="liveLabel">ready</span></div>
+  </div>
+</nav>
+ 
+<div class="page">
+ 
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total logs</div>
+      <div class="stat-val" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Incidents</div>
+      <div class="stat-val" id="statIncidents" style="color:var(--red)">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">High risk</div>
+      <div class="stat-val" id="statHighRisk" style="color:var(--amber)">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Violations</div>
+      <div class="stat-val" id="statViolations" style="color:var(--red)">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg latency</div>
+      <div class="stat-val" id="statLatency">—</div>
+      <div class="stat-sub">ms</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Drift status</div>
+      <div class="stat-val" id="statDrift" style="font-size:14px;padding-top:4px">—</div>
+    </div>
+  </div>
+ 
+  <!-- LOGS TAB -->
+  <div class="tab-content active" id="tab-logs">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Agent action feed</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span class="card-count" id="logCount">0 logs</span>
+          <span class="endpoint ep-get"><span class="ep-method">GET</span>/logs</span>
+          <span class="card-action" onclick="fetchAll()">↻ Refresh</span>
+        </div>
+      </div>
+      <div id="logTableWrap">
+        <div class="empty-box"><div class="empty-icon">📋</div><div class="empty-text">Enter your API key and click Fetch Data</div></div>
+      </div>
+    </div>
+ 
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Send demo payload</div>
+        <span class="endpoint ep-post"><span class="ep-method">POST</span>/log</span>
+      </div>
+      <div class="payload-box">
+{<br>
+&nbsp;&nbsp;<span class="pj-key">"api_key"</span>: <span class="pj-str" id="demoKeyDisplay">"demo_key_001"</span>,<br>
+&nbsp;&nbsp;<span class="pj-key">"agent_name"</span>: <span class="pj-str">"fraud-bot"</span>,<br>
+&nbsp;&nbsp;<span class="pj-key">"action_type"</span>: <span class="pj-str">"approve"</span>,<br>
+&nbsp;&nbsp;<span class="pj-key">"input"</span>: { <span class="pj-key">"amount"</span>: <span class="pj-num">75000</span>, <span class="pj-key">"kyc_verified"</span>: <span class="pj-num">false</span> },<br>
+&nbsp;&nbsp;<span class="pj-key">"output"</span>: { <span class="pj-key">"confidence"</span>: <span class="pj-num">0.6</span> },<br>
+&nbsp;&nbsp;<span class="pj-key">"reasoning"</span>: <span class="pj-str">""</span><br>
+}
+      </div>
+      <button class="send-payload-btn" onclick="sendDemoPayload()">▶ Send payload — triggers 3 RBI violations</button>
+    </div>
+  </div>
+ 
+  <!-- INCIDENTS TAB -->
+  <div class="tab-content" id="tab-incidents">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Flagged incidents</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span class="card-count" id="incidentCount">0 incidents</span>
+          <span class="endpoint ep-get"><span class="ep-method">GET</span>/incidents</span>
+          <span class="card-action" onclick="fetchIncidents()">↻ Refresh</span>
+        </div>
+      </div>
+      <div id="incidentTableWrap">
+        <div class="empty-box"><div class="empty-icon">🔍</div><div class="empty-text">No incidents yet</div></div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- REPORT TAB -->
+  <div class="tab-content" id="tab-report">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">RBI compliance report</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="endpoint ep-get"><span class="ep-method">GET</span>/report</span>
+            <span class="card-action" onclick="fetchReport()">↻ Load</span>
+          <span class="card-action" onclick="openHTMLReport()" style="color:var(--blue)">📄 Open Full Report</span>
+          </div>
+        </div>
+        <div id="reportContent">
+          <div class="empty-box"><div class="empty-icon">📄</div><div class="empty-text">Click Load to generate report</div></div>
+        </div>
+      </div>
+ 
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">RBI FREE-AI clause status</div>
+          <div class="card-count">8 clauses</div>
+        </div>
+        <div class="rbi-list">
+          <div class="rbi-row"><div class="rbi-ico ri-pass" id="rbi-1-3">✓</div><div class="rbi-info"><div class="rbi-clause">1.3 — Agent identification</div><div class="rbi-desc">agent_name required in every log</div></div><div class="rbi-status rs-ok" id="rbi-1-3-st">compliant</div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass" id="rbi-2-1">✓</div><div class="rbi-info"><div class="rbi-clause">2.1 — Input logging</div><div class="rbi-desc">inputs field must be non-empty</div></div><div class="rbi-status rs-ok" id="rbi-2-1-st">compliant</div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-fail" id="rbi-3-1">✕</div><div class="rbi-info"><div class="rbi-clause">3.1 — Reasoning required</div><div class="rbi-desc">reasoning field must not be empty</div></div><div class="rbi-status rs-bad" id="rbi-3-1-st">violation</div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass" id="rbi-4-2">✓</div><div class="rbi-info"><div class="rbi-clause">4.2 — Timestamps</div><div class="rbi-desc">created_at auto-assigned on every log</div></div><div class="rbi-status rs-ok" id="rbi-4-2-st">compliant</div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-fail" id="rbi-4-4">✕</div><div class="rbi-info"><div class="rbi-clause">4.4 — Session grouping</div><div class="rbi-desc">session_id must be present</div></div><div class="rbi-status rs-bad" id="rbi-4-4-st">violation</div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass" id="rbi-5-0">✓</div><div class="rbi-info"><div class="rbi-clause">5.0 — Output recorded</div><div class="rbi-desc">output field must be non-empty</div></div><div class="rbi-status rs-ok" id="rbi-5-0-st">compliant</div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass" id="rbi-5-2">✓</div><div class="rbi-info"><div class="rbi-clause">5.2 — Action classification</div><div class="rbi-desc">action_type must match known verb taxonomy</div></div><div class="rbi-status rs-ok" id="rbi-5-2-st">compliant</div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-fail" id="rbi-6-1">✕</div><div class="rbi-info"><div class="rbi-clause">6.1 — KYC for approvals</div><div class="rbi-desc">kyc_verified must be true for approve actions</div></div><div class="rbi-status rs-bad" id="rbi-6-1-st">violation</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- INTELLIGENCE TAB — NEW -->
+  <div class="tab-content" id="tab-intelligence">
+ 
+    <!-- NL Query -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Ask your compliance data</div>
+        <span class="endpoint ep-post"><span class="ep-method">POST</span>/query</span>
+      </div>
+      <div class="query-wrap">
+        <div class="query-suggestions">
+          <span class="query-chip" onclick="setQuery(this)">Did my agent show bias this week?</span>
+          <span class="query-chip" onclick="setQuery(this)">How many high risk decisions were made?</span>
+          <span class="query-chip" onclick="setQuery(this)">Which actions had missing KYC?</span>
+          <span class="query-chip" onclick="setQuery(this)">What is my biggest compliance risk?</span>
+        </div>
+        <div class="query-input-row">
+          <input class="query-input" id="queryInput" placeholder="Ask anything about your agent logs in plain English...">
+          <button class="query-btn" id="queryBtn" onclick="sendQuery()">Ask →</button>
+        </div>
+        <div class="query-answer" id="queryAnswer"></div>
+      </div>
+    </div>
+ 
+    <div class="intel-grid">
+      <!-- Behavioral Drift -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Behavioral drift</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="endpoint ep-get"><span class="ep-method">GET</span>/drift</span>
+            <span class="card-action" onclick="fetchDrift()">↻ Analyse</span>
+          </div>
+        </div>
+        <div id="driftContent">
+          <div class="empty-box"><div class="empty-icon">📈</div><div class="empty-text">Click Analyse to compare this week vs last week</div></div>
+        </div>
+      </div>
+ 
+      <!-- Structuring Detection -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Structuring detection</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="endpoint ep-get"><span class="ep-method">GET</span>/structuring</span>
+            <span class="card-action" onclick="fetchStructuring()">↻ Scan</span>
+          </div>
+        </div>
+        <div id="structuringContent">
+          <div class="empty-box"><div class="empty-icon">🔎</div><div class="empty-text">Click Scan to detect ₹50K threshold patterns</div></div>
+        </div>
+      </div>
+
+      <!-- Structural Anomalies -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Structural anomalies</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="endpoint ep-get"><span class="ep-method">GET</span>/structural-anomalies</span>
+            <span class="card-action" onclick="fetchStructuralAnomalies()">↻ Check</span>
+          </div>
+        </div>
+        <div id="structuralAnomaliesContent">
+          <div class="empty-box"><div class="empty-icon">📐</div><div class="empty-text">Click Check to detect missing reasoning or context</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+  <!-- RULES ENGINE TAB -->
+  <div class="tab-content" id="tab-rules">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Anomaly rules</div>
+          <div class="card-count">6 active</div>
+        </div>
+        <div class="anomaly-list">
+          <div class="an-row"><div class="an-num">01</div><div class="an-body"><div class="an-name">High-value approval without risk flag</div><div class="an-desc">Amount &gt; ₹50,000 approved with no risk flag in output</div></div><div class="an-sev"><span class="badge b-high">high</span></div></div>
+          <div class="an-row"><div class="an-num">02</div><div class="an-body"><div class="an-name">Missing reasoning</div><div class="an-desc">Agent made a decision with no reasoning logged — violates FREE-AI Clause 3.1</div></div><div class="an-sev"><span class="badge b-med">medium</span></div></div>
+          <div class="an-row"><div class="an-num">03</div><div class="an-body"><div class="an-name">Approval without KYC verification</div><div class="an-desc">Approval action but KYC status absent from input data</div></div><div class="an-sev"><span class="badge b-high">high</span></div></div>
+          <div class="an-row"><div class="an-num">04</div><div class="an-body"><div class="an-name">Unknown action type</div><div class="an-desc">Action type is unclassified — not in the known verb taxonomy</div></div><div class="an-sev"><span class="badge b-med">medium</span></div></div>
+          <div class="an-row"><div class="an-num">05</div><div class="an-body"><div class="an-name">Low confidence approval</div><div class="an-desc">Agent approved with confidence score below 0.75</div></div><div class="an-sev"><span class="badge b-med">medium</span></div></div>
+          <div class="an-row"><div class="an-num">06</div><div class="an-body"><div class="an-name">Consecutive rejection pattern</div><div class="an-desc">Same user rejected 3+ times — possible bias detection flag</div></div><div class="an-sev"><span class="badge b-med">medium</span></div></div>
+        </div>
+      </div>
+ 
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">RBI FREE-AI framework coverage</div>
+          <div class="card-count">8 clauses monitored</div>
+        </div>
+        <div class="rbi-list">
+          <div class="rbi-row"><div class="rbi-ico ri-pass">✓</div><div class="rbi-info"><div class="rbi-clause">Clause 1.3 — Agent identification</div><div class="rbi-desc">agent_name required in every log entry</div></div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass">✓</div><div class="rbi-info"><div class="rbi-clause">Clause 2.1 — Data traceability</div><div class="rbi-desc">Input data must be logged for every decision</div></div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass">✓</div><div class="rbi-info"><div class="rbi-clause">Clause 3.1 — Explainability</div><div class="rbi-desc">Reasoning field required — Groq generates if missing</div></div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass">✓</div><div class="rbi-info"><div class="rbi-clause">Clause 4.2 — Auditability</div><div class="rbi-desc">Every decision timestamped automatically</div></div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass">✓</div><div class="rbi-info"><div class="rbi-clause">Clause 4.4 — Session traceability</div><div class="rbi-desc">Decisions grouped by session_id for audit trail</div></div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass">✓</div><div class="rbi-info"><div class="rbi-clause">Clause 5.0 — Outcome logging</div><div class="rbi-desc">Output recorded for every agent decision</div></div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass">✓</div><div class="rbi-info"><div class="rbi-clause">Clause 5.2 — Action classification</div><div class="rbi-desc">action_type must match known verb taxonomy</div></div></div>
+          <div class="rbi-row"><div class="rbi-ico ri-pass">✓</div><div class="rbi-info"><div class="rbi-clause">Clause 6.1 — KYC verification</div><div class="rbi-desc">KYC status required for all approval decisions</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+</div>
+ 
+<!-- Drawer -->
+ 
+  <!-- MANUAL LOG TAB -->
+  <div class="tab-content" id="tab-manual">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Submit log from UI</div>
+        <span class="endpoint ep-post"><span class="ep-method">POST</span>/log-manual</span>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="font-size:11px;color:var(--t3);display:block;margin-bottom:5px;">Agent Name *</label>
+            <input id="ml-agent" type="text" placeholder="e.g. FraudDetectorAgent" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--t3);display:block;margin-bottom:5px;">Action Type *</label>
+            <select id="ml-action" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;appearance:none;">
+              <option value="approve">approve</option>
+              <option value="reject">reject</option>
+              <option value="flag">flag</option>
+              <option value="escalate">escalate</option>
+              <option value="query">query</option>
+              <option value="review">review</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--t3);display:block;margin-bottom:5px;">Amount (₹)</label>
+            <input id="ml-amount" type="number" placeholder="e.g. 75000" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--t3);display:block;margin-bottom:5px;">Confidence (0.0–1.0)</label>
+            <input id="ml-confidence" type="number" step="0.01" min="0" max="1" placeholder="e.g. 0.85" value="0.85" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--t3);display:block;margin-bottom:5px;">KYC Verified</label>
+            <select id="ml-kyc" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;appearance:none;">
+              <option value="true">Yes — KYC verified</option>
+              <option value="false">No — KYC not verified</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--t3);display:block;margin-bottom:5px;">Is PEP?</label>
+            <select id="ml-pep" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;appearance:none;">
+              <option value="false">No</option>
+              <option value="true">Yes — Politically Exposed Person</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--t3);display:block;margin-bottom:5px;">Reasoning (required — RBI FREE-AI Sutra 6)</label>
+          <textarea id="ml-reasoning" rows="3" placeholder="Explain why the agent made this decision..." style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--text);outline:none;resize:vertical;line-height:1.6;"></textarea>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--t3);display:block;margin-bottom:5px;">Extra Input Fields (JSON — optional)</label>
+          <textarea id="ml-extra" rows="2" placeholder='{"customer_id": "CUST_001", "risk_score": 0.3}' style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:var(--mono);font-size:12px;color:var(--text);outline:none;resize:vertical;line-height:1.6;"></textarea>
+        </div>
+        <button onclick="submitManualLog()" style="background:var(--teal);color:#000;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background .15s;">
+          ▶ Submit to Compliance Gateway
+        </button>
+        <div id="ml-result" style="display:none;padding:14px;border-radius:8px;font-size:12px;line-height:1.7;"></div>
+      </div>
+    </div>
+  </div>
+ 
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-hdr">
+    <div>
+      <div class="drawer-title" id="drawerTitle">Log detail</div>
+      <div class="drawer-id" id="drawerDecisionId"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
+<script>
+let allLogs = [];
+let allIncidents = [];
+let lastReport = null;
+ 
+function getBackend() {
+  const input = document.getElementById('backendInput');
+  const manual = (input?.value || '').trim().replace(/\/$/, '');
+  const sameOrigin = (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+    ? window.location.origin.replace(/\/$/, '')
+    : '';
+ 
+  // Safety fallback: prevent stale/cached Railway URL from being used.
+  if (/railway\.app/i.test(manual)) {
+    if (input && sameOrigin) input.value = sameOrigin;
+    return sameOrigin;
+  }
+  if (manual) return manual;
+  return sameOrigin;
+}
+function getKey() {
+  return document.getElementById('apiKeyInput').value.trim();
+}
+ 
+function switchTab(name) {
+  const names = ['logs','incidents','report','intelligence','rules','manual'];
+  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.toggle('active', el.id === 'tab-' + name));
+}
+ 
+function toast(msg, dur=2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
+ 
+function setLive(txt) { document.getElementById('liveLabel').textContent = txt; }
+ 
+// ── Drawer ──────────────────────────────────────────────────────
+function openDrawer(log) {
+  document.getElementById('drawerDecisionId').textContent = log.decision_id || '—';
+  document.getElementById('drawerTitle').textContent = log.agent_id || 'Log detail';
+  const body = document.getElementById('drawerBody');
+  const riskClass = log.risk_level === 'high' ? 'b-high' : log.risk_level === 'medium' ? 'b-med' : 'b-low';
+  const flagged = log.flagged ? '<span class="badge b-high">⚠ flagged</span>' : '<span class="badge b-low">✓ clean</span>';
+  body.innerHTML = `
+    <div><div class="d-section-title">Overview</div>
+    <div class="d-kv">
+      <div class="d-row"><span class="dk">Agent</span><span class="dv">${esc(log.agent_id)}</span></div>
+      <div class="d-row"><span class="dk">Verdict</span><span class="dv">${esc(log.verdict)}</span></div>
+      <div class="d-row"><span class="dk">Type</span><span class="dv">${esc(log.action_type)}</span></div>
+      <div class="d-row"><span class="dk">Risk</span><span class="dv"><span class="badge ${riskClass}">${esc(log.risk_level||'—')}</span></span></div>
+      <div class="d-row"><span class="dk">Flagged</span><span class="dv">${flagged}</span></div>
+      <div class="d-row"><span class="dk">Latency</span><span class="dv">${log.latency_ms != null ? log.latency_ms+'ms' : '—'}</span></div>
+      <div class="d-row"><span class="dk">Session</span><span class="dv">${esc(log.session_id||'—')}</span></div>
+      <div class="d-row"><span class="dk">Time</span><span class="dv">${log.created_at ? new Date(log.created_at).toLocaleString() : '—'}</span></div>
+    </div></div>
+    ${log.reasoning ? `<div><div class="d-section-title">Reasoning</div><div class="d-json">${esc(log.reasoning)}</div></div>` : ''}
+    ${log.inputs ? `<div><div class="d-section-title">Inputs</div><div class="d-json">${esc(typeof log.inputs==='string'?log.inputs:JSON.stringify(log.inputs,null,2))}</div></div>` : ''}
+    ${log.output ? `<div><div class="d-section-title">Output</div><div class="d-json">${esc(typeof log.output==='string'?log.output:JSON.stringify(log.output,null,2))}</div></div>` : ''}
+    ${log.flag_reason ? `<div><div class="d-section-title">Flag reason</div><div class="viol-item vi-high">${esc(log.flag_reason)}</div></div>` : ''}
+    ${log.compliance_violations?.length ? `<div><div class="d-section-title">Violations (${log.compliance_violations.length})</div><div class="violations-list">${log.compliance_violations.map(v=>`<div class="viol-item vi-high">${esc(v)}</div>`).join('')}</div></div>` : ''}
+    ${log.compliance_tags?.length ? `<div><div class="d-section-title">Compliant clauses</div><div style="display:flex;gap:5px;flex-wrap:wrap">${log.compliance_tags.map(t=>`<span class="badge b-blue">${esc(t)}</span>`).join('')}</div></div>` : ''}
+  `;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+ 
+// ── Table renderer ───────────────────────────────────────────────
+function renderLogTable(logs, wrapId, countId) {
+  const wrap = document.getElementById(wrapId);
+  document.getElementById(countId).textContent = logs.length + (logs.length===1?' entry':' entries');
+  if (!logs.length) {
+    wrap.innerHTML = `<div class="empty-box"><div class="empty-icon">📋</div><div class="empty-text">No records found</div></div>`;
+    return;
+  }
+  wrap.innerHTML = `<table><thead><tr>
+    <th>Decision ID</th><th>Agent</th><th>Verdict</th><th>Type</th>
+    <th>Risk</th><th>Flagged</th><th>Latency</th><th>Time</th>
+  </tr></thead><tbody>
+    ${logs.map(log => {
+      const rc = log.risk_level==='high'?'b-high':log.risk_level==='medium'?'b-med':'b-low';
+      const fl = log.flagged ? `<span class="badge b-high">⚠ yes</span>` : `<span class="badge b-low">✓ no</span>`;
+      const ts = log.created_at ? new Date(log.created_at).toLocaleTimeString() : '—';
+      return `<tr onclick="openDrawer(${esc(JSON.stringify(log))})">
+        <td class="mono t3">${esc((log.decision_id||'—').substring(0,12))}…</td>
+        <td style="font-weight:500">${esc(log.agent_id||'—')}</td>
+        <td class="t2">${esc(log.verdict||'—')}</td>
+        <td><span class="action-pill">${esc(log.action_type||'—')}</span></td>
+        <td><span class="badge ${rc}">${esc(log.risk_level||'—')}</span></td>
+        <td>${fl}</td>
+        <td class="mono t2">${log.latency_ms!=null?log.latency_ms+'ms':'—'}</td>
+        <td class="mono t3">${ts}</td>
+      </tr>`;
+    }).join('')}
+  </tbody></table>`;
+}
+ 
+// ── Stats ────────────────────────────────────────────────────────
+function updateStats(logs) {
+  document.getElementById('statTotal').textContent = logs.length;
+  const incidents = logs.filter(l => l.flagged).length;
+  document.getElementById('statIncidents').textContent = incidents;
+  const highRisk = logs.filter(l => l.risk_level==='high').length;
+  document.getElementById('statHighRisk').textContent = highRisk;
+  const allViol = logs.reduce((acc,l) => acc+(l.compliance_violations?.length||0), 0);
+  document.getElementById('statViolations').textContent = allViol;
+  const lats = logs.map(l => l.latency_ms).filter(n => n!=null);
+  const avg = lats.length ? Math.round(lats.reduce((a,b)=>a+b,0)/lats.length) : 0;
+  document.getElementById('statLatency').textContent = avg || '—';
+}
+ 
+// ── RBI clause updater ───────────────────────────────────────────
+function updateRBIStatus(report) {
+  if (!report) return;
+  const clauseMap = {'1.3':'rbi-1-3','2.1':'rbi-2-1','3.1':'rbi-3-1','4.2':'rbi-4-2','4.4':'rbi-4-4','5.0':'rbi-5-0','5.2':'rbi-5-2','6.1':'rbi-6-1'};
+  const violations = report.compliance_violations || report.violations || [];
+  Object.entries(clauseMap).forEach(([clause, id]) => {
+    const ico = document.getElementById(id);
+    const st  = document.getElementById(id+'-st');
+    if (!ico || !st) return;
+    const violated = violations.some(v => String(v).includes(clause));
+    ico.className = violated ? 'rbi-ico ri-fail' : 'rbi-ico ri-pass';
+    ico.textContent = violated ? '✕' : '✓';
+    st.className = violated ? 'rbi-status rs-bad' : 'rbi-status rs-ok';
+    st.textContent = violated ? 'violation' : 'compliant';
+  });
+}
+ 
+// ── Report renderer ──────────────────────────────────────────────
+function renderReport(report) {
+  lastReport = report;
+  const el = document.getElementById('reportContent');
+  if (!report || report.message) {
+    el.innerHTML = `<div class="empty-box"><div class="empty-text">${report?.message||'No report data'}</div></div>`;
+    return;
+  }
+  const ss = report.session_summary || {};
+  const total = ss.total_decisions || report.total_actions || allLogs.length;
+  const flagged = ss.flagged || report.incidents || 0;
+  const rb = ss.risk_breakdown || {};
+  const score = report.compliance_score || Math.round(((total - flagged) / Math.max(total,1)) * 100);
+  const verdict = report.verdict || (report.rbi_response_block?.compliance_verdict) || '—';
+  const verdictColor = verdict.includes('NON') ? 'var(--red)' : verdict.includes('MOSTLY') ? 'var(--amber)' : 'var(--teal)';
+ 
+  el.innerHTML = `
+    <div class="report-meta">
+      <div class="report-meta-row"><span class="report-meta-key">Report ID</span><span class="report-meta-val">${esc(report.report_id||'—')}</span></div>
+      <div class="report-meta-row"><span class="report-meta-key">Generated</span><span class="report-meta-val">${report.generated_at ? new Date(report.generated_at).toLocaleString() : '—'}</span></div>
+      <div class="report-meta-row"><span class="report-meta-key">Agent</span><span class="report-meta-val">${esc(report.agent_name||'—')}</span></div>
+      <div class="report-meta-row"><span class="report-meta-key">Framework</span><span class="report-meta-val">RBI FREE-AI August 2025</span></div>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:14px;">
+      <div class="grid-3">
+        <div style="background:var(--teal-l);border:1px solid var(--teal-b);border-radius:8px;padding:12px;">
+          <div style="font-size:9px;color:var(--teal);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Compliance score</div>
+          <div style="font-size:24px;font-weight:600;color:var(--teal);font-family:var(--mono)">${score}<span style="font-size:13px;color:var(--t3)">%</span></div>
+        </div>
+        <div style="background:var(--red-l);border:1px solid var(--red-b);border-radius:8px;padding:12px;">
+          <div style="font-size:9px;color:var(--red);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Flagged decisions</div>
+          <div style="font-size:24px;font-weight:600;color:var(--red);font-family:var(--mono)">${flagged}</div>
+        </div>
+        <div style="background:var(--blue-l);border:1px solid var(--blue-b);border-radius:8px;padding:12px;">
+          <div style="font-size:9px;color:var(--blue);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Total decisions</div>
+          <div style="font-size:24px;font-weight:600;color:var(--blue);font-family:var(--mono)">${total}</div>
+        </div>
+      </div>
+      ${rb.high||rb.medium ? `<div>
+        <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px;">Risk breakdown</div>
+        <div style="display:flex;gap:8px;">
+          ${rb.high ? `<span class="badge b-high">${rb.high} high</span>` : ''}
+          ${rb.medium ? `<span class="badge b-med">${rb.medium} medium</span>` : ''}
+          ${rb.low ? `<span class="badge b-low">${rb.low} low</span>` : ''}
+        </div>
+      </div>` : ''}
+      <div style="padding:10px;border-radius:7px;border:1px solid var(--border);background:var(--s2);">
+        <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Verdict</div>
+        <div style="font-size:12px;font-weight:600;color:${verdictColor}">${esc(verdict)}</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="downloadReportJSON()" style="flex:1;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);">↓ Download JSON</button>
+        <button onclick="printReport()" style="flex:1;background:var(--text);color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);">🖨 Print / Save PDF</button>
+      </div>
+    </div>`;
+}
+ 
+// ── Drift renderer v3 ───────────────────────────────────────────
+function renderDrift(data) {
+  const el = document.getElementById('driftContent');
+  if (data.status === 'insufficient_data') {
+    el.innerHTML = `<div class="empty-box"><div class="empty-icon">📊</div><div class="empty-text">${esc(data.message||'No logs found.')}</div></div>`;
+    document.getElementById('statDrift').textContent = '—';
+    return;
+  }
+
+  const tw = data.this_week || {};
+  const lw = data.last_week || {};
+  const sev = data.overall_severity || 'low';
+  const sevColor = (sev==='critical'||sev==='high')?'var(--red)':sev==='medium'?'var(--amber)':'var(--teal)';
+  const shifts = Array.isArray(data.findings) ? data.findings : [];
+  const dp = data.decision_pattern || {};
+  const pats = Array.isArray(dp.patterns_detected) ? dp.patterns_detected : [];
+  const timeline = Array.isArray(dp.timeline) ? dp.timeline : [];
+
+  document.getElementById('statDrift').innerHTML =
+    `<span style="color:${sevColor};font-size:12px;font-weight:600">${data.status==='stable'?'✓ stable':'⚠ drift'}</span>`;
+
+  // ── Stats comparison ──
+  const hasComparison = data.has_comparison;
+  const statsHTML = `<div>
+    ${hasComparison ? `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;padding:0 0 4px 0;border-bottom:1px solid var(--border);">
+      <span>Metric</span><span style="text-align:right">Prev ${data.window||5}</span><span style="text-align:right">Last ${data.window||5}</span>
+    </div>` : ''}
+    ${[
+      ['Approval rate','approval_rate','%'],
+      ['Flag rate','flag_rate','%'],
+      ['Missing reasoning','missing_reasoning_rate','%'],
+      ['Avg confidence','avg_confidence',''],
+      ['Avg latency','avg_latency_ms','ms'],
+    ].map(([label,key,unit])=>{
+      const rv = tw[key]; const lv = lw[key];
+      const delta = (rv!=null&&lv!=null) ? rv-lv : null;
+      const deltaStr = delta!=null ? `<span style="font-size:10px;color:${Math.abs(delta)>0?'var(--amber)':'var(--t3)'};margin-left:4px">${delta>0?'+':''}${Math.round(delta*100)/100}${unit}</span>` : '';
+      return `<div class="drift-stat"><span class="drift-key">${label}</span>
+        <div class="drift-vals">
+          ${hasComparison?`<div class="drift-val"><div class="label">prev ${data.window||5}</div><div class="num">${lv??'—'}${unit}</div></div>`:''}
+          <div class="drift-val"><div class="label">last ${data.window||5}</div><div class="num" style="color:${sev!=='low'&&delta!=null&&Math.abs(delta)>0?sevColor:'inherit'}">${rv??'—'}${unit}${deltaStr}</div></div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // ── Behavioral shifts ──
+  const shiftsHTML = shifts.length ? `<div>
+    <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Behavioral shifts detected</div>
+    ${shifts.map(s=>{
+      const isH=s.severity==='high';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:6px;background:${isH?'var(--red-l)':'var(--amber-l)'};border:1px solid ${isH?'var(--red-b)':'var(--amber-b)'};margin-bottom:5px;">
+        <span style="font-size:12px;color:var(--text)">${esc(s.label)}</span>
+        <span style="font-size:11px;font-family:var(--mono);color:${isH?'var(--red)':'var(--amber)'}">${esc(s.previous)} → ${esc(s.recent)} <strong>(${esc(s.delta)})</strong></span>
+      </div>`;
+    }).join('')}
+  </div>` : '';
+
+  // ── Decision pattern block ──
+  const patternColor = dp.pattern==='high_risk_pattern'?'var(--red)':dp.pattern==='watch'?'var(--amber)':'var(--teal)';
+  const patternBg = dp.pattern==='high_risk_pattern'?'var(--red-l)':dp.pattern==='watch'?'var(--amber-l)':'var(--teal-l)';
+  const patternBorder = dp.pattern==='high_risk_pattern'?'var(--red-b)':dp.pattern==='watch'?'var(--amber-b)':'var(--teal-b)';
+
+  const patternHTML = `<div>
+    <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Decision pattern (last ${data.window||5} decisions)</div>
+    <div style="background:${patternBg};border:1px solid ${patternBorder};border-radius:7px;padding:10px 12px;margin-bottom:8px;">
+      <div style="font-size:11px;font-weight:700;color:${patternColor};margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">${esc(dp.pattern||'—')}</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.5">${esc(dp.summary||'')}</div>
+    </div>
+    ${pats.map(p=>{
+      const isH=p.severity==='high';
+      return `<div style="border-left:3px solid ${isH?'var(--red)':'var(--amber)'};padding:8px 10px;background:var(--s2);border-radius:0 6px 6px 0;margin-bottom:5px;">
+        <div style="font-size:11px;font-weight:600;color:${isH?'var(--red)':'var(--amber)'};margin-bottom:2px">${esc(p.label)} <span style="font-weight:400;color:var(--t3)">(×${p.count})</span></div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:2px">${esc(p.detail)}</div>
+        <div style="font-size:10px;color:var(--t3);font-family:var(--mono)">${esc(p.rbi)}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // ── Timeline ──
+  const timelineHTML = timeline.length ? `<div>
+    <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Decision timeline (oldest → newest)</div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+    ${timeline.map(t=>{
+      const isApprove=t.action==='approve'; const isReject=t.action==='reject';
+      const actionColor=isApprove?'var(--teal)':isReject?'var(--red)':'var(--amber)';
+      const riskColor=t.risk==='high'||t.risk==='critical'?'var(--red)':t.risk==='medium'?'var(--amber)':'var(--teal)';
+      const problems=[];
+      if(!t.has_reasoning) problems.push('no reasoning');
+      if(t.action==='approve'&&!t.kyc) problems.push('no KYC');
+      if(t.confidence<0.75) problems.push(`conf ${t.confidence}`);
+      return `<div style="display:grid;grid-template-columns:20px 70px 60px 80px 90px 1fr;gap:6px;align-items:center;padding:6px 8px;background:var(--s2);border-radius:6px;border:1px solid var(--border)">
+        <span style="font-size:10px;color:var(--t4);font-family:var(--mono)">#${t.index}</span>
+        <span style="font-size:11px;font-weight:700;color:${actionColor};font-family:var(--mono)">${esc(t.action.toUpperCase())}</span>
+        <span style="font-size:10px;color:${riskColor};font-weight:600">${esc(t.risk)}</span>
+        <span style="font-size:10px;color:var(--t2);font-family:var(--mono)">${t.amount?'₹'+Number(t.amount).toLocaleString('en-IN'):'—'}</span>
+        <span style="font-size:10px;color:var(--t3)">conf: ${t.confidence}</span>
+        <span style="font-size:10px;color:var(--red)">${problems.map(p=>`<span style="background:var(--red-l);border:1px solid var(--red-b);padding:1px 5px;border-radius:3px;margin-right:3px">${esc(p)}</span>`).join('')}</span>
+      </div>`;
+    }).join('')}
+    </div>
+  </div>` : '';
+
+  // ── Groq AI ──
+  const aiHTML = data.ai_narrative ? `<div>
+    <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Groq AI Analysis</div>
+    <div style="background:var(--blue-l);border:1px solid var(--blue-b);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--text);line-height:1.6">${esc(data.ai_narrative)}</div>
+  </div>` : '';
+
+  el.innerHTML = `<div style="padding:14px;display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <span class="badge ${(sev==='high'||sev==='critical')?'b-high':sev==='medium'?'b-med':'b-low'}">${esc(data.status)}</span>
+      <span style="font-size:11px;color:var(--t3)">${shifts.length} shift${shifts.length===1?'':'s'} · ${pats.length} pattern issue${pats.length===1?'':'s'}</span>
+      <span style="font-size:10px;color:var(--t3)">analysed ${data.total_logs_analysed||0} logs</span>
+    </div>
+    ${statsHTML}
+    ${shiftsHTML}
+    ${patternHTML}
+    ${timelineHTML}
+    ${aiHTML}
+  </div>`;
+}
+
+
+// ── Structuring renderer v2 ────────────────────────────────────
+function renderStructuring(data) {
+  const el = document.getElementById('structuringContent');
+  const findings = Array.isArray(data.findings) ? data.findings : [];
+  const isClean = data.overall_severity === 'clean' || (!findings.length && !data.pattern);
+  if (isClean) {
+    el.innerHTML = `<div class="struct-clean">✓ No structuring patterns detected in recent logs</div>`;
+    return;
+  }
+  const toRender = findings.length ? findings : [{
+    pattern: data.pattern, severity: data.severity,
+    description: data.description, rbi_reference: data.rbi_reference,
+    flagged_decisions: data.flagged_decisions||[], str_trigger: false
+  }];
+  const strBanner = data.str_required ? `<div style="background:var(--red-l);border:1px solid var(--red-b);border-radius:7px;padding:10px 12px;display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
+    <span style="font-size:14px">🚨</span>
+    <div><div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:2px;">STR FILING REQUIRED</div>
+    <div style="font-size:11px;color:var(--red)">File with FIU-IND within 7 days — PMLA 2002 Section 12</div></div>
+  </div>` : '';
+  const aiNarratives = Array.isArray(data.ai_narratives) ? data.ai_narratives : [];
+  const cards = toRender.map((f,i)=>{
+    const isH=f.severity==='high'||f.severity==='critical';
+    const ai = f.ai_analysis || aiNarratives[i] || null;
+    return `<div style="background:${isH?'var(--red-l)':'var(--amber-l)'};border:1px solid ${isH?'var(--red-b)':'var(--amber-b)'};border-radius:7px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap;">
+        <span class="badge ${isH?'b-high':'b-med'}">⚠ ${esc(f.pattern||'pattern detected')}</span>
+        ${f.str_trigger?'<span style="font-size:10px;font-weight:700;color:var(--red);font-family:var(--mono)">STR TRIGGER</span>':''}
+      </div>
+      <div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:6px;">${esc(f.description||'')}</div>
+      <div style="font-size:10px;color:var(--t3);font-family:var(--mono);margin-bottom:6px;">${esc(f.rbi_reference||'')}</div>
+      ${f.flagged_decisions?.length?`<div style="font-size:11px;color:${isH?'var(--red)':'var(--amber)'};margin-bottom:4px;">Flagged IDs: ${f.flagged_decisions.map(id=>`<span style="background:rgba(0,0,0,0.05);padding:1px 5px;border-radius:3px;font-family:var(--mono)">${esc(String(id).substring(0,12))}</span>`).join(' ')}</div>`:''}
+      ${ai?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid ${isH?'var(--red-b)':'var(--amber-b)'};">
+        <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Groq Analysis</div>
+        <div style="font-size:11px;color:var(--text);line-height:1.6">${esc(ai)}</div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+  el.innerHTML = `<div class="struct-alert">${strBanner}${cards}${data.summary?`<div style="font-size:11px;color:var(--t3);padding-top:4px;border-top:1px solid var(--border);line-height:1.5">${esc(data.summary)}</div>`:''}</div>`;
+}
+ 
+// ── Fetch functions ──────────────────────────────────────────────
+async function fetchAll() {
+  const key = getKey();
+  const backend = getBackend();
+  if (!key) { toast('Please enter an API key'); return; }
+  const btn = document.getElementById('fetchBtn');
+  btn.disabled = true; btn.textContent = '⟳ Fetching...';
+  setLive('loading...');
+  try {
+    const [logsRes, incRes, reportRes] = await Promise.allSettled([
+      fetch(`${backend}/logs?api_key=${encodeURIComponent(key)}`),
+      fetch(`${backend}/incidents?api_key=${encodeURIComponent(key)}`),
+      fetch(`${backend}/report?api_key=${encodeURIComponent(key)}`)
+    ]);
+    if (logsRes.status==='fulfilled' && logsRes.value.ok) {
+      allLogs = await logsRes.value.json();
+      renderLogTable(allLogs, 'logTableWrap', 'logCount');
+      updateStats(allLogs);
+    }
+    if (incRes.status==='fulfilled' && incRes.value.ok) {
+      allIncidents = await incRes.value.json();
+      renderLogTable(allIncidents, 'incidentTableWrap', 'incidentCount');
+    }
+    if (reportRes.status==='fulfilled' && reportRes.value.ok) {
+      const report = await reportRes.value.json();
+      renderReport(report);
+      updateRBIStatus(report);
+    }
+    setLive(`${allLogs.length} logs`);
+    toast(`✓ Loaded ${allLogs.length} logs · ${allIncidents.length} incidents`);
+    document.getElementById('demoKeyDisplay').textContent = `"${key}"`;
+  } catch(e) {
+    if (e.message && (e.message.includes('Failed to fetch') || e.message.includes('NetworkError'))) {
+      toast('Backend is waking up — please wait ~60 seconds and try again (Render sleep mode)', 5000);
+      setLive('sleeping...');
+      document.getElementById('logTableWrap').innerHTML = '<div class="empty-box"><div class="empty-icon">😴</div><div class="empty-text">Backend is waking up from sleep mode. Wait ~60 seconds and click Fetch Data again.</div></div>';
+    } else {
+      toast('Connection failed — check backend URL');
+      setLive('error');
+    }
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<span>↓</span> Fetch Data';
+}
+ 
+async function fetchIncidents() {
+  const key = getKey(); const backend = getBackend();
+  if (!key) return;
+  try {
+    const res = await fetch(`${backend}/incidents?api_key=${encodeURIComponent(key)}`);
+    allIncidents = await res.json();
+    renderLogTable(allIncidents, 'incidentTableWrap', 'incidentCount');
+    toast(`✓ ${allIncidents.length} incidents loaded`);
+  } catch(e) { toast('Failed to load incidents'); }
+}
+ 
+async function fetchReport() {
+  const key = getKey(); const backend = getBackend();
+  if (!key) return;
+  try {
+    const res = await fetch(`${backend}/report?api_key=${encodeURIComponent(key)}`);
+    const report = await res.json();
+    renderReport(report);
+    updateRBIStatus(report);
+    toast('✓ Report loaded');
+  } catch(e) { toast('Failed to load report'); }
+}
+ 
+async function fetchDrift() {
+  const key = getKey(); const backend = getBackend();
+  if (!key) { toast('Enter API key first'); return; }
+  document.getElementById('driftContent').innerHTML = `<div class="empty-box"><div class="empty-text">Analysing...</div></div>`;
+  try {
+    const res = await fetch(`${backend}/drift?api_key=${encodeURIComponent(key)}`);
+    const data = await res.json();
+    renderDrift(data);
+    toast('✓ Drift analysis complete');
+  } catch(e) { toast('Drift analysis failed — check backend'); document.getElementById('driftContent').innerHTML=`<div class="empty-box"><div class="empty-text">Failed to connect</div></div>`; }
+}
+ 
+async function fetchStructuring() {
+  const key = getKey(); const backend = getBackend();
+  if (!key) { toast('Enter API key first'); return; }
+  document.getElementById('structuringContent').innerHTML = `<div class="empty-box"><div class="empty-text">Scanning...</div></div>`;
+  try {
+    const res = await fetch(`${backend}/structuring?api_key=${encodeURIComponent(key)}`);
+    const data = await res.json();
+    renderStructuring(data);
+    toast('✓ Structuring scan complete');
+  } catch(e) { toast('Structuring scan failed'); document.getElementById('structuringContent').innerHTML=`<div class="empty-box"><div class="empty-text">Failed to connect</div></div>`; }
+}
+
+async function fetchStructuralAnomalies() {
+  const key = getKey(); const backend = getBackend();
+  if (!key) { toast('Enter API key first'); return; }
+  document.getElementById('structuralAnomaliesContent').innerHTML = `<div class="empty-box"><div class="empty-text">Checking...</div></div>`;
+  try {
+    const res = await fetch(`${backend}/structural-anomalies?api_key=${encodeURIComponent(key)}`);
+    const data = await res.json();
+    renderStructuralAnomalies(data);
+    toast('✓ Structural check complete');
+  } catch(e) { toast('Structural check failed'); }
+}
+
+function renderStructuralAnomalies(data) {
+    const el = document.getElementById('structuralAnomaliesContent');
+    const anomalies = data.anomalies || [];
+    if (!anomalies.length) {
+        el.innerHTML = `<div class="struct-clean">✓ No structural issues or lazy reasoning detected</div>`;
+        return;
+    }
+    
+    el.innerHTML = `<div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11px;color:var(--t3);margin-bottom:4px;">${anomalies.length} decisions with weak structural integrity</div>
+        ${anomalies.map(a => `
+            <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer" onclick="openDrawer(${esc(JSON.stringify(a))})">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                    <span style="font-size:12px;font-weight:600;color:var(--text)">${esc(a.agent_id)}</span>
+                    <span class="badge b-med" style="font-size:10px">${esc(a.risk_level)}</span>
+                </div>
+                <div style="font-size:11px;color:var(--red);font-family:var(--mono);margin-bottom:4px;word-break:break-all">${esc(a.flag_reason || 'Missing/Lazy reasoning')}</div>
+                <div style="font-size:10px;color:var(--t3)">ID: ${esc(a.decision_id.substring(0,12))}…</div>
+            </div>
+        `).join('')}
+    </div>`;
+}
+
+async function sendQuery() {
+
+  const key = getKey(); const backend = getBackend();
+  const question = document.getElementById('queryInput').value.trim();
+  if (!question) { toast('Enter a question first'); return; }
+  if (!key) { toast('Enter API key first'); return; }
+  const btn = document.getElementById('queryBtn');
+  btn.disabled = true; btn.textContent = 'Thinking...';
+  const ans = document.getElementById('queryAnswer');
+  ans.style.display = 'block'; ans.classList.add('visible');
+  ans.textContent = 'Analysing your logs...';
+  try {
+    const res = await fetch(`${backend}/query`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'X-API-Key': key},
+      body: JSON.stringify({api_key: key, question})
+    });
+    const data = await res.json();
+    ans.textContent = data.answer || 'No answer returned';
+    toast(`✓ Analysed ${data.logs_analyzed||0} logs`);
+  } catch(e) { ans.textContent = 'Query failed — check backend connection and GROQ_API_KEY'; toast('Query failed'); }
+  btn.disabled = false; btn.textContent = 'Ask →';
+}
+ 
+function setQuery(el) {
+  document.getElementById('queryInput').value = el.textContent;
+}
+ 
+async function sendDemoPayload() {
+  const key = getKey() || 'demo_key_001';
+  const backend = getBackend();
+  try {
+    await fetch(`${backend}/log`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'X-API-Key': key},
+      body: JSON.stringify({
+        api_key: key, action_type: 'approve', agent_name: 'fraud-bot',
+        input: {amount: 75000, kyc_verified: false},
+        output: {confidence: 0.6}, reasoning: ''
+      })
+    });
+    toast('✓ Payload sent — refreshing in 1.5s...');
+    setTimeout(fetchAll, 1500);
+  } catch(e) { toast('Failed to send payload'); }
+}
+ 
+
+function openHTMLReport() {
+  const key = getKey();
+  const backend = getBackend();
+  if (!key) { toast('Enter API key first'); return; }
+  window.open(`${backend}/report/html?api_key=${encodeURIComponent(key)}`, '_blank');
+}
+
+function downloadReportJSON() {
+  const key = getKey(); const backend = getBackend();
+  window.open(`${backend}/report?api_key=${encodeURIComponent(key)}`, '_blank');
+}
+ 
+function printReport() {
+  window.print();
+}
+ 
+function esc(s) {
+  if (typeof s !== 'string') return String(s||'');
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+ 
+ 
+async function submitManualLog() {
+  const key = getKey();
+  const backend = getBackend();
+  if (!key) { toast('Enter API key first'); return; }
+ 
+  const agent = document.getElementById('ml-agent').value.trim();
+  const action = document.getElementById('ml-action').value;
+  const amount = parseFloat(document.getElementById('ml-amount').value) || 0;
+  const confidence = parseFloat(document.getElementById('ml-confidence').value) || 0.85;
+  const kyc = document.getElementById('ml-kyc').value === 'true';
+  const pep = document.getElementById('ml-pep').value === 'true';
+  const reasoning = document.getElementById('ml-reasoning').value.trim();
+ 
+  if (!agent) { toast('Agent name required'); return; }
+  if (!reasoning) { toast('Reasoning required — RBI FREE-AI Sutra 6'); return; }
+ 
+  let extra = {};
+  const extraRaw = document.getElementById('ml-extra').value.trim();
+  if (extraRaw) {
+    try { extra = JSON.parse(extraRaw); } catch(e) { toast('Extra fields JSON is invalid'); return; }
+  }
+ 
+  const payload = {
+    api_key: key,
+    agent_name: agent,
+    action_type: action,
+    reasoning: reasoning,
+    confidence: confidence,
+    input: { amount, kyc_verified: kyc, is_pep: pep, ...extra },
+    output: {}
+  };
+ 
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = '⟳ Processing...';
+ 
+  try {
+    const res = await fetch(`${backend}/log-manual`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-API-Key': key},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+ 
+    const verdict = data.verdict || 'unknown';
+    const isViolation = data.message && data.message.includes("VIOLATION");
+    const verdictColor = isViolation ? 'var(--red)' : (verdict === 'allow' ? 'var(--teal)' : (verdict === 'reject' ? 'var(--red)' : 'var(--amber)'));
+    const riskColor = data.risk_level === 'high' || data.risk_level === 'critical' ? 'var(--red)' : data.risk_level === 'medium' ? 'var(--amber)' : 'var(--teal)';
+
+    const el = document.getElementById('ml-result');
+    el.style.display = 'block';
+    el.style.background = 'var(--s2)';
+    el.style.border = `1px solid ${verdictColor}`;
+    el.style.padding = '16px';
+    
+    // Display the specific message from the backend (which includes REVIEW (VIOLATION))
+    const displayMsg = data.message || `Decision ${verdict.toUpperCase()}`;
+
+    el.innerHTML = `
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+        <span style="font-size:18px;font-weight:800;color:${verdictColor};font-family:var(--mono)">${displayMsg}</span>
+        <div style="flex:1"></div>
+        <span style="font-size:12px;color:${riskColor};font-weight:700;background:rgba(0,0,0,0.03);padding:4px 10px;border-radius:100px;border:1px solid ${riskColor}">RISK: ${esc((data.risk_level||'low').toUpperCase())}</span>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+         <div><span style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em">Audit Hash</span><div style="font-size:11px;font-family:var(--mono);color:var(--t2);margin-top:2px">${esc(data.log_hash?.substring(0,16))}…</div></div>
+         <div><span style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em">Risk Score</span><div style="font-size:13px;font-weight:600;color:var(--text);margin-top:2px">${data.risk_score != null ? data.risk_score.toFixed(3) : '0.000'}</div></div>
+      </div>
+
+      ${data.ai_explanation ? `
+        <div style="margin-bottom:12px;padding:12px;background:${isViolation ? 'var(--red-l)' : 'var(--surface)'};border-radius:8px;border:1px solid ${isViolation ? 'var(--red-b)' : 'var(--border)'}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">AI Analysis Engine (Gemini)</span>
+            ${data.escalate_to_human ? '<span style="font-size:9px;background:var(--red-l);color:var(--red);border:1px solid var(--red-b);padding:2px 6px;border-radius:4px;font-weight:700">ESCALATION TRIGGERED</span>' : ''}
+          </div>
+          <div style="font-size:12px;color:var(--text);line-height:1.6">${esc(data.ai_explanation)}</div>
+          ${data.ai_recommended_action ? `<div style="margin-top:10px;font-size:11px;color:var(--t2);padding:8px;background:white;border-radius:6px;border:1px solid var(--border)"><strong>Action:</strong> ${esc(data.ai_recommended_action)}</div>` : ''}
+        </div>` : ''}
+
+      ${data.policy_violations?.length ? `<div style="margin-top:8px;"><span style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em">Policy Flags</span><div style="margin-top:4px;display:flex;flex-direction:column;gap:5px">${data.policy_violations.map(v=>`<div style="font-size:11px;padding:6px 10px;background:var(--red-l);color:var(--red);border-radius:6px;border:1px solid var(--red-b)">${esc(v)}</div>`).join('')}</div></div>` : ''}
+    `;
+
+    toast(`✓ Submitted — verdict: ${verdict}`);
+    setTimeout(fetchAll, 1500);
+  } catch(e) {
+    toast('Submission failed — check backend');
+    document.getElementById('ml-result').style.display = 'none';
+  }
+  btn.disabled = false; btn.textContent = '▶ Submit to Compliance Gateway';
+}
+ 
+// Auto-fetch on load
+window.addEventListener('load', () => {
+  // Force same-origin on load to avoid stale browser-restored backend URLs.
+  const backendInput = document.getElementById('backendInput');
+  if (backendInput) {
+    if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+      backendInput.value = window.location.origin.replace(/\/$/, '');
+    } else {
+      backendInput.value = '';
+    }
+  }
+  const key = getKey();
+  if (key) fetchAll();
+});
+</script>
+</body>
+</html>
+ 
