@@ -79,13 +79,14 @@ def score(req: DecisionRequest) -> tuple[float, str, str]:
         risk_score += W_PEP
         factors.append(f"+{W_PEP} PEP detected")
 
-    # 🔍 Structural Detection in Scorer
-    reasoning = (req.reasoning or "").lower()
-    lazy_phrases = ["no reasoning", "none", "not provided", "test", "demo", "as requested", "ok", "approve"]
-    is_lazy = any(p in reasoning for p in lazy_phrases) or len(reasoning.split()) < 4
-    if is_lazy:
-        risk_score += W_STRUCTURAL_GAP
-        factors.append(f"+{W_STRUCTURAL_GAP} structural gap: weak reasoning")
+    # 🔍 Structural Detection in Scorer (High-stakes only)
+    if req.action_type in ("approve", "reject", "escalate"):
+        reasoning = (req.reasoning or "").lower()
+        lazy_phrases = ["no reasoning", "none", "not provided", "test", "demo", "as requested", "ok", "approve"]
+        is_lazy = any(p in reasoning for p in lazy_phrases) or len(reasoning.split()) < 4
+        if is_lazy:
+            risk_score += W_STRUCTURAL_GAP
+            factors.append(f"+{W_STRUCTURAL_GAP} structural gap: weak reasoning on high-stakes decision")
 
     # Stateful: session history
 

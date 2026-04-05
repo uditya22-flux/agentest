@@ -105,30 +105,33 @@ def rule_repeated_rejections(dao: DAO) -> DAO:
 def rule_structural_detection(dao: DAO) -> DAO:
     """
     Structural check for reasoning and log completeness.
-    Flags 'lazy' reasoning or missing essential fields.
+    Focused on high-stakes decisions (approve/reject).
     """
+    is_high_stakes = dao.action_type in ("approve", "reject", "escalate")
     reasoning = (dao.reasoning or "").lower()
     
-    # 🔍 1. Weak Reasoning Detection
+    # 🔍 1. Weak Reasoning Detection (Strict for high-stakes)
     lazy_phrases = ["no reasoning", "none", "not provided", "test", "demo", "as requested", "ok", "approve"]
     is_lazy = any(p in reasoning for p in lazy_phrases) or len(reasoning.split()) < 4
     
-    if is_lazy and reasoning != "":
+    if is_lazy and reasoning != "" and is_high_stakes:
         if dao.risk_level == "low":
             dao.risk_level = "medium"
         dao.flag_reason = (
             (dao.flag_reason or "")
-            + " | STRUCTURAL_ISSUE: Reasoning is too short or generic for a high-stakes decision."
+            + " | STRUCTURAL_ISSUE: High-stakes decision lacks descriptive reasoning."
         )
 
-    # 🔍 2. Missing Input Structure
-    if not dao.input or len(dao.input.keys()) < 2:
-        if dao.risk_level == "low":
-            dao.risk_level = "medium"
-        dao.flag_reason = (
-            (dao.flag_reason or "")
-            + " | STRUCTURAL_ISSUE: Decision log lacks sufficient context/input variables."
-        )
+    # 🔍 2. Data Synchronization/Completeness
+    if is_high_stakes:
+        mandatory_context = ["amount", "kyc_verified"]
+        missing = [f for f in mandatory_context if f not in dao.input and f not in dao.output]
+        if missing:
+            dao.risk_level = "high"
+            dao.flag_reason = (
+                (dao.flag_reason or "")
+                + f" | STRUCTURAL_ISSUE: Decision data desync - missing mandatory fields: {missing}"
+            )
 
     return dao
 
