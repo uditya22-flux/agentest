@@ -306,7 +306,6 @@ tbody tr:hover{background:var(--s2)}
           <div style="display:flex;gap:10px;align-items:center">
             <span class="endpoint ep-get"><span class="ep-method">GET</span>/report</span>
             <span class="card-action" onclick="fetchReport()">↻ Load</span>
-          <span class="card-action" onclick="openHTMLReport()" style="color:var(--blue)">📄 Open Full Report</span>
           </div>
         </div>
         <div id="reportContent">
@@ -704,11 +703,22 @@ function renderReport(report) {
         <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Verdict</div>
         <div style="font-size:12px;font-weight:600;color:${verdictColor}">${esc(verdict)}</div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="downloadReportJSON()" style="flex:1;background:var(--s2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);">↓ Download JSON</button>
-        <button onclick="printReport()" style="flex:1;background:var(--text);color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);">🖨 Print / Save PDF</button>
+      <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border)">
+        <div style="font-size:10px; color:var(--t3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;">Report Actions & Exports</div>
+        <div style="display:flex; gap:8px;">
+          <button onclick="openHTMLReport()" style="flex:1.2; background:var(--blue-l); color:var(--blue); border:1px solid var(--blue-b); border-radius:8px; padding:9px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--sans); display:flex; align-items:center; justify-content:center; gap:6px;">
+            📄 Open High-Fidelity Report
+          </button>
+          <button onclick="downloadReportJSON()" style="flex:1; background:var(--s2); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:9px; font-size:12px; font-weight:500; cursor:pointer; font-family:var(--sans);">
+            ↓ JSON
+          </button>
+          <button onclick="printReport()" style="flex:1; background:var(--text); color:#fff; border:none; border-radius:8px; padding:9px; font-size:12px; font-weight:500; cursor:pointer; font-family:var(--sans);">
+            🖨 PDF / Print
+          </button>
+        </div>
       </div>
     </div>`;
+
 }
  
 // ── Drift renderer v3 ───────────────────────────────────────────
